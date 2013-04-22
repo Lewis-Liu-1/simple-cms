@@ -1,0 +1,45 @@
+This means that the input data must contain an @ sign and at least one dot (.). 
+Also, the @ must not be the first character of the email address, and the last 
+dot must be present after the @ sign, and minimum 2 characters before the end:
+C:
+function validateForm()
+{
+	var x=document.forms["myForm"]["email"].value;
+	var atpos=x.indexOf("@");
+	var dotpos=x.lastIndexOf(".");
+	if (atpos<1 || dotpos<atpos+2 || dotpos+2>=x.length)
+	{
+		alert("Not a valid e-mail address");
+		return false;
+	}
+}
+N:
+The function above could be called when a form is submitted:
+
+<html>
+<head>
+C:
+<script type="text/javascript">
+function validateForm()
+{
+	var x=document.forms["myForm"]["email"].value;
+	var atpos=x.indexOf("@");
+	var dotpos=x.lastIndexOf(".");
+	if (atpos<1 || dotpos<atpos+2 || dotpos+2>=x.length)
+	{
+		alert("Not a valid e-mail address");
+		return false;
+	}
+}
+</script>
+N:
+</head>
+
+<body>
+<form name="myForm" action="demo_form.asp" onsubmit="return validateForm();" method="post">
+Email: <input type="text" name="email">
+<input type="submit" value="Submit">
+</form>
+</body>
+
+</html>

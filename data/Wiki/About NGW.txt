@@ -1,0 +1,16 @@
+N:
+test me if you can.
+IMG:
+/images/folders.jpg
+N:
+smaller image
+IMG:
+/images/pear.jpg
+CMT:
+for:Wiki/About NGW.txt
+says:NGW100 is a embedded Linux platform, Pertronic panels use it to come up with TCP/IP communications.  
+It connects to panel RS485 port, reorganize data received, then send the message in graphics protocol format to interested parties.	
+email:lyl@pertronic.co.nz
+username:lyl
+ip:::1
+time:Mon, 31 Oct 2011 10:22:34

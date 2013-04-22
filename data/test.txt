@@ -1,0 +1,28 @@
+Test:
+{
+Name:F4-2W Power-up 
+Product Group:Power-up							
+Test Type:beta  		
+Software:Recommended  			
+Classification:Generic							
+Standard:NZS4512-2003							
+Aim / Purpose of Test:Verify that the panel powers up as expected and also manages off-normal conditions correctly									
+Set-up Instructions/Equipment Required:
+Ensure to use B401R bases and reverse polarity capable iDevices to test this product									
+
+Test Procedure:									
+Step 1:Terminate all zones and global hush with 10k EOL, then power up and wait for ~1 minute								
+Exp result:After power-up (all LEDs flashing) the normal LED flashes at a rate of 600ms ON, 200ms OFF								
+Step 2:Power-up with one or more smoke alarms								
+Exp result:After power-up smoke alarm(s), individual alerting								
+Step 3:Power-up with an iDevice alarm								
+Exp result:After power-up all ccts reverse-alert, while only the cct in alarm shows an alarm								
+Step 4:Power up with 1 or more zones O/C and/or S/C								
+Exp result:After power-up zones and panel will show defect 								
+Step 5:Power up with 2 M-terminals shorted together								
+Exp result:Panel in defect shows 2 zones in defect until short cleared followed by system reset (or successful EOL test on 24-hour test)								
+Step 6:Note: for sound control operation 100V relays are switched instead								
+Exp result:equivalent functioning to reverse alerting								
+Step 7:For sound control operation use standard B401 bases, terminate global								
+Exp result:changed set-up instruction								
+}			

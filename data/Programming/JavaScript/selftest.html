@@ -1,0 +1,69 @@
+<html>
+<head>
+<script type="text/javascript">
+function timeMsg()
+{
+	var t=setTimeout("alertMsg()",10000);//10 minutes
+}
+function alertMsg()
+{
+	alert("Times up, test finished");
+	clearTimeout(t);
+}
+
+function getRadioValue(radioN)
+{
+	for(i=0;i<document.selftest[radioN].length;i++)
+	{
+		if (document.selftest[radioN][i].checked == true)
+			return document.selftest[radioN][i].value;
+	}
+}
+
+function checkanswer()
+{
+	var x=0;	
+	var x=getRadioValue("vehicle");
+	if (x==0)
+	{
+		alert("Congratulation, you are correct!");
+		clearTimeout(t);
+	}
+	else if (x==null)
+	{
+		alert("Please select a value!");
+	}
+	else
+	{
+		alert("Your input ("+x+") is incorrect!");
+	} 
+	return false;
+}
+</script>
+</head>
+
+<body onload="timeMsg()">
+What is the result of following C code?
+<p>
+#include &lt;stdio.h&gt;<br/>
+<br/>
+int evaluate(char * c)<br/>
+{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;printf("%s\n",c);<br/>
+}<br/>
+<br/>
+int main()<br/>
+{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;int i=0x30;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;int *y;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;y=&i;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;evaluate((char*)y);<br/>
+}<br/>
+</p>
+<form name="selftest" onsubmit="return checkanswer()">
+<input type="radio" name="vehicle" value="30" />30 <br />
+<input type="radio" name="vehicle" value="0" />0 <br/>
+<input type="submit" value="Submit my answer"/>
+</form>
+</body>
+</html>

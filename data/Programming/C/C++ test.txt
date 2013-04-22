@@ -1,0 +1,251 @@
+Section 1
+QUESTION:
+What, if anything, is wrong with the following code fragments?
+
+i)
+C:
+#define max(a,b) ((a) >= (b) ? (a) : (b))
+
+...
+
+c = max( x , y[j++] );
+
+ANSWER:
+Macros use token replacement at compile time. Functions pass by value. So macro parameters with side-effects will get executed more than once if used repeatedly. Could return the wrong value or even cause memory corruption by exceeding array bounds. 
+Could use an inline function or template.
+
+J was increase twice, instead of once
+
+ii)
+C:
+void process_reverse_order(int 		*array, 
+   unsigned int 	size)
+{
+	unsigned int i;
+
+	for (	i = size-1; i >= 0;--i)
+	{
+		process_element(array[i]);
+	}
+}
+ANSWER:
+if size is 0, then process_element could run 0xffff times, I point to array 's invalid element.
+The loop variable is unsigned but the loop condition relies on the variable being < 0 i.e. negative. When the loop iteration takes the value beyond zero it will loop back to a very large positive number and continue to loop forever.
+This will almost certainly also cause the array to be indexed way beyond its bounds and cause a segmentation violation or other memory troubles.
+
+
+iii)
+C:
+int* func(int p_i)
+{
+	int l_RetVal_i = p_i;
+
+	...
+
+	return & l_RetVal_i;
+}
+ANSWER:
+local variable's pointer will be release after function returns.
+
+Section 2
+C++:
+class P1
+{
+public:
+        P1 () 
+ 	{ 
+		p = new char [10]; 
+ 	}
+
+	~P1 () 
+	{ 
+		delete [] p; 
+	} 
+private:
+	char * p;
+}; 
+
+class P2 : public P1
+{
+public:
+        P2 () 
+	{ 
+		q = new char [20]; 
+	}
+	~P2 () 
+	{ 
+		delete [] q; 
+	}
+private:
+        char * q; 
+}; 
+
+int func()
+{
+    P1 * pp = new P2; 
+
+    ...
+
+    delete pp; 
+    return 0;
+}
+Question 2:  What is the problem with the code? 
+ANSWER:
+Call pp->P1::~P1();
+before delete pp;
+
+Section 3
+Polymorphism is a key attribute of Object Oriented languages such as C++. As a refresher here is a short definition from Wikipedia:
+Dynamic polymorphism
+Polymorphism through inheritance
+Variable pointers (and references) of a base class type in C++ can refer to objects of any derived classes of that type in addition to objects exactly matching the variable type. This allows arrays and other kinds of containers to hold pointers to objects of differing types. Because assignment of values to variables usually occurs at run-time, this is necessarily a run-time phenomenon.
+Please write a small example to illustrate polymorphism in C++. 
+
+C++:
+class A{ 
+public:
+	void increaseme(){;}
+}
+class B:public A{}
+class C:public B{}
+
+int main()
+{
+	A *  list[3];
+	list[0]=new A();
+	list[1]=new B();
+	list[2]=new C();
+	
+	for(int i=0;i<3;i++) list[i]->increaseme();
+	
+}
+
+
+Section 4
+The following function is intended to ensure that only one thread at a time runs this function.
+C++:
+void OneAtATime()
+{
+	static bool	l_InUse_z = false;
+
+	if(l_InUse_z == false)
+	{
+		l_InUse_z = true;
+
+		//
+		// Rest of “One at a time” processing here
+		//
+
+		l_InUse_z = false;
+	}
+
+	return;
+}
+Question 1:  Will this function achieve its goals safely? 
+ANSWER:
+No, second may kick in before it sees  l_InUse_z become true.
+
+
+
+Question 2: If not, what changes need to be made to correct it?
+ANSWER:
+void OneAtATime()
+{
+	static bool	l_InUse_z = false;
+	while( l_InUse_z) ; //busy wait?
+	l_InUse_z = true;
+	//
+	// Rest of “One at a time” processing here
+	//
+	l_InUse_z = false;
+
+	return;
+}
+
+Section 5
+C++:
+#include <iostream>
+
+class A
+{
+public:
+	A() : m_i(0) {std::cout << "Const A\n";}
+
+	A(int i) : m_i(i) {std::cout << "Const A\n";}
+
+	virtual ~A() {std::cout << "Dest A\n";}
+
+	A(const A& c) {m_i = c.m_i; std::cout << "Copy Const A\n"; }
+
+	A& A::operator=(const A& c);
+
+	int m_i;
+};
+
+A& A::operator=(const A& c)
+{
+	m_i = c.m_i; 
+	std::cout << "Operator =\n";
+
+	return *this;
+}
+
+
+void f(A& p)
+{
+	A local;
+	p = local;
+}
+
+A g(A p)
+{
+	A local(2);
+	return local;
+}
+
+QUESTION:
+Question 1:  What is the output of the following code?
+C++:
+	A test(1);
+
+	f(test);
+	std::cout << test.m_i << "\n";
+ANSWER:
+	Const A
+	Const A
+	Operator =
+	Dest A
+	0
+
+
+Question 2:  What is the output of the following code?
+		A test(1);
+
+		g(test);
+		std::cout << test.m_i << "\n";
+
+ANSWER:
+	Const A
+	Copy Const A
+	Const A
+	Dest A
+	Dest A
+	1
+	Dest A
+
+
+Question 3:  Can you please modify the = operator to avoid self-assignment:  t = t?
+
+C++:
+A& A::operator=(const A& c)
+{
+ANSWER:
+	if (this == &c) return *this;
+C:
+	m_i = c.m_i; 
+
+	std::cout << "Operator =\n";
+	return *this;
+}
+
+

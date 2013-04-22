@@ -1,0 +1,20 @@
+N:
+We could use Javascript or jQuery to change image width, if image is too wide than our predefined section width.
+At our html header section, add following lines:
+
+JAVA:
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("[src$='.jpg']").each(function()
+		{
+			var s=$(this).width();
+			if ((s)>500) {
+				$(this).width("500px");
+			}
+		});	
+	});	
+</script>
+N:
+It will walk though all the image source, check its width, if it's wider than 500px, then confine it to prefined size.
+Or we could get user's screen size, change according section size.
+ 

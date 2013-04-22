@@ -1,0 +1,95 @@
+We can use timer event to do a self test page.
+People normally like to take a test online to test their
+skills on C or C++.
+
+Here is a html file.
+
+C:
+<html>
+<head>
+<script type="text/javascript">
+function timeMsg()
+{
+	var t=setTimeout("alertMsg()",10000);//10 minutes
+}
+function alertMsg()
+{
+	alert("Times up, test finished");
+	clearTimeout(t);
+}
+
+function getRadioValue(radioN)
+{
+	for(i=0;i<document.selftest[radioN].length;i++)
+	{
+		if (document.selftest[radioN][i].checked == true)
+			return document.selftest[radioN][i].value;
+	}
+}
+
+function checkanswer()
+{
+	var x=0;	
+	var x=getRadioValue("vehicle");
+	if (x==0)
+	{
+		alert("Congratulation, you are correct!");
+	}
+	else if (x==null)
+	{
+		alert("Please select a value!");
+	}
+	else
+	{
+		alert("Your input ("+x+") is incorrect!");
+	} 
+	return false;
+}
+</script>
+</head>
+
+<body onload="timeMsg()">
+N:
+What is the result of following C code?
+
+A:
+/download/testpointer.c
+Download C code from here
+
+C:
+
+#include <stdio.h>
+
+int evaluate(char * c)
+{
+	printf("%s\n",c);
+}
+
+int main()
+{
+	int i=0x30;
+	int *y;
+	y=&i;
+	evaluate((char*)y);
+}
+
+N:
+Continue our html file.
+
+C:
+<form name="selftest" onsubmit="return checkanswer()">
+<input type="radio" name="vehicle" value="30" />30 <br />
+<input type="radio" name="vehicle" value="0" />0 <br/>
+<input type="submit" value="Submit my answer"/>
+</form>
+</body>
+</html>
+
+N:
+Now take the test:
+
+A:
+/download/selftest.html
+Take the test
+
+

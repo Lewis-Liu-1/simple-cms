@@ -1,0 +1,261 @@
+N:
+This test is designed to determine your level of experience with embedded programming, Assembler, C/C++.  There are a number of difficult questions, and if anyone ever answers every question perfectly we will have to add some harder questions.
+
+PART 1: C/C++ QUESTIONS
+Q1.	Implement function "void MemoryCopy (unsigned char *dest, unsigned char *src, unsigned int blockSize)" with C. Function MemoryCopy (…) should copy the memory block specified by src & blockSize to dest.
+
+ANSWER:
+C:	
+void MemoryCopy(unsigned char * dest, unsigned char * src, unsigned int blocksize)
+{
+	int i;
+	if (dest==NULL || src==NULL)
+		return;
+		
+	for(i=0;i<blocksize;i++)
+	{
+		*dest++=*src++;
+	}
+}
+
+Q2.	The function below combines two input strings into a new string.  Can you see any problems with it?
+C:
+//	Input: source strings pointed by str1 and str2
+//	Return:pointer to the new string
+//	Assume str1+str2 <512 bytes
+char *CombineString (char *strt1, char *str2)
+{
+	char temp [512], *p;
+	p = &temp [0];
+	while (*str1){*p=*str1; p++; str1++;}
+	while (*str2){*p=*str2; p++; str2++;}
+	return(temp);
+}
+ANSWER:
+
+Q3.	A programmer working in an Australian company wrote the program below to convert date time string from American format to Australian format.  He is so proud of his programming skill and wants to use this program to replace the windows time clock function.  However, after he installed his program into Windows, he realizes the program crashes every minute. "What is going on?"  He is asking …..; Could you give him some ideas?
+C:
+#include<stdlib.h>
+#include<stdio.h>
+#include<conio.h>
+#include<time.h>
+#include<mem.h>
+
+typedef struct{
+	char day[4];
+	char month[4];
+	char date[3];
+	char time[9]
+	char year [5];
+}TimeString;
+
+TimeString *GetTime(void)
+{
+	TimeString *ptr;
+	Time_t secondSinceGMT;
+
+	if((ptr=(TimeString*)malloc(sizeof(TimeString)))!=NULL)
+	{
+		secondSinceGMT=time(NULL); //Gets time of day.
+		//Function "time_t time(time_t*timer)"
+		//gives the current time, in seconds,
+		//elapsed since 00:00:00 GMT, January 1, 1970,
+		//and stores that value in the location pointed to by timer,
+		//provided that timer is not a NULL pointer.
+
+		//converts the time value to a more readable format
+		memcpy((void*)ptr, ctime(&secondSinceGMT), sizeof(TimeString));
+		//Function "void *memcpy(void *dest, const void *src, size_t n)"
+		//copies a block of n bytes from src to dest and returns a pointer to dest
+		//If src and dest overlap, the behaviour of memcpy is undefined.
+
+		//Function "char*ctime(const time_t*time)"
+		//converts a time value pointed to by time into a 26-character string
+		//in the following form:
+		//	Mon Nov 21 11:31:54 1983\n\0
+		//Note: ctime returns a pointer to the character string containing
+		//the date and time.  The return value points to static data that is
+		//overwritten with each call to ctime.
+		ptr->day[3]=ptr->month[3]=ptr->date[2]=ptr->time[8]=ptr->year[4]=0;
+		//What is the above line for?  Please put your answer below.
+		//Put an '\0' at the end of each char array.
+ 
+		//NULL terminate the string pointers within the structure
+
+	}
+	return(ptr);
+}
+
+void main(void)
+{
+	TimeString *t;
+	while(1)
+		If((t=GetTime())!=NULL
+		{
+			gotoxy(1,1); //moves cursor to the fixed position
+			//Function "void gotoxy(int x,int y)"
+			//moves the cursor to the given position in the current text window.
+			printf("%s%s%s",t->day,t->date,t->month,t->year);
+			gotoxy(1,2);
+			printf("%s",t->time);
+		}
+	exit(1);	//the program should never go to here.
+	//If it does, something must be seriously wrong.
+	//Exit with error code.
+}
+ANSWER:
+a) 	After malloc, there is no free memory operation, cause memory leak, after sometime, program will crash.
+	Change the program structure,allocate memory outside of  GetTime(), free  dynamic allocated memory afterwards.
+
+
+Q4.	Please refer to program below:
+C:
+	#define NULL	0
+	typedef struct_NODE NODE, *PNODE;
+	struct_NODE {
+		int		Value;
+		PNODE	NextNode;
+	};
+
+	PNODE InsertNodeInSortedLinkList(
+		PNODE FirstNodeInList,	PNODE NewNode)
+	{
+		PNODE	NodeInList	= FirstNodeInList;
+		PNODE	PreviousNode	= NULL;
+		While (NoteInList->Value<=NewNode->Value) {
+			PreviousNode	= NodeInList;
+			NodeInList	= NodeInList->NextNode;
+		}
+		PreviousNode->NextNode	= NewNode
+		NewNode->NextNode		= NodeInList;
+		Return FirstNodeInList;
+	}
+N:
+	A prominent software firm once used this example in a recruiting ad, looking for people who could find the subtle bug(s) contained therein.  Can you find it?
+ANSWER:
+At the end of the list, if all elements  smaller than newnode's value, then NodoInList will point to  nowhere,  process will cause segmentation fault.
+
+Q5.	What is commonly put on the stack?  Please tick those appropriate.
+
+TABLE:
+ITEM			,YOUR ANSWER
+Code
+Local variables		,YES
+Global variables	
+Const data
+Malloced data
+Temporary storage for register contents	,YES
+Jump address within a function
+Function parameters			,YES
+Function return address (the address a function returns to when it exits)	,YES
+Function return value								,YES
+Q6.	What keyword would you use if "a" is a pointer to data that is changed by the hardware independently to the program?
+ANSWER:
+
+Q7.	In a proprietary owned protocol, it defines the basic communication packet structure as:
+
+TABLE:
+ITEM	,VALUE
+Header	,(1 byte)
+Packet Length ,	(1 byte)
+Data segment (Length is described by “packet length”)
+Trailer	,(1 byte)
+	
+1. All communication packets must start with a header (0xFF) and ended with trailer (0xAA).
+2. Header and trailer would never appear in the middle of a packet.
+
+
+An example of packet is given below:
+CMD:
+0xFF	2	1	2	0xAA
+
+QUESTION:
+A programmer working in the company wrote an interrupt program below to handle packet receiving for a  PC machine.  Please give your comments/suggestions on the space provided after the programmer’s code.
+C:
+unsigned char*rxbuf, packetReady=FALSE;
+void interrupt com_int(…)
+{
+	unsigned received,expectLen;
+	unsigned char inByte,quit;
+
+	quit=0;
+	received=0;	//assume no bytes received.
+	disable();	//disable interrupts
+	while(!quit)
+	//Is it a receive interrupt
+	if((inportb(UART_ADDRESS+IIR) & RX_MASK) == RX_ID)
+	{
+		inByte=inportb(UART_ADDRESS + RXR);	//gets the received
+							//byte from UART
+		received++;					//one more byte received
+		switch(received)
+		{
+			case 1: //Waiting for Header (0xFF)
+				if(inByte!=0xFF) quit=1; //The first byte must be header 0xFF 
+				break;
+
+			case 2: //Receiving length of the data segment
+				if((rxbuf=malloc(inByte)) == NULL) quit=1; 	//not enough memory to
+								//hold the packet
+				else expectLen=InByte-3;	//sets the expected packet length break;
+
+			default:		//Receiving other bytes of a packet
+				if(received>=expectLen)  //whole packet received.
+				{
+					quit=1;
+					rxbuf[0]=0xFF;		//saves the header back to software buffer
+					if(inByte == 0xAA) packetReady=TRUE;
+				}
+				rxbuf[(received-1)]=inByte; //stores the byte into software buffer
+		}//end of switch(…){…}
+	}//end of interrupt ready
+	/*Signal end of hardware interrupt */
+	outportb(ICR,EOI);
+	enable();
+}
+ANSWER:
+Protocol definition got flaws: if 0xFF, or 0XAA appears other than header or trailer, then whole communication fails.
+Better change it to if 0xff or 0xaa appears in data, should repeat itself, or some other ways, like put an escape in before data.
+Then use a state machine, find all the states, change states according protocol
+	
+PART 2. ASSEMBLER QUESTIONS
+Q8.	Please refer to program below:
+	Function BB in file “test.c” has been written as below.
+C:
+	unsigned intBB(void)
+	{
+		extern unsigned int AA (unsigned int, unsigned unt);
+		unsigned int I;
+
+		…..
+
+		I=AA(10,20);
+		return(I);
+	}
+
+N:
+	Function AA in file “test.asm” has been written as below.
+ASM:
+		PUBLIC AA
+	AA	PROC NEAR
+		MOV EAX, DWORD PTR SS:[ESP+4]		:  …………………………………
+		MOV ECX, 4					:  …………………………………
+		MOV EBX,EAX				: ………………………………….
+	AA_loop;
+		INC EBX					:  …………………………………
+		DEC ECX					:  …………………………………
+		CMP ECX,0					:  …………………………………
+		JNZ AA_loop
+		RET
+	AA	ENDP
+
+	Assume both files mentioned below are compiled with no optimizations for PC32 bit protected mode.
+
+QUESTION:
+	What value function BB will return?		
+
+	What is the reason?
+ANSWER:	
+I guess EAX got the value from stack pointer, counter was set to 4, EBX then got the value of EAX, EBX got increased 4 times, ECX decreased 4 times until it reaches 0.
+
+

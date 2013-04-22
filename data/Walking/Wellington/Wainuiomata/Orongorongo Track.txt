@@ -1,0 +1,27 @@
+WALK:
+Location: Take the Coast Road to Catchpool Valley, 12 km south of Wainuiomata in the Hutt Valley.
+
+WALK:
+Location: Drive along the Coast Road, on your left hand side, there will be a sign says: Rimutaka Forest Park
+
+N:
+I assume you know how to drive from Petone to Wainuiomata.
+Here is the map from Wainui to Coast Road.
+
+
+WALK:
+Img:
+/data/Walking/Wellington/Wainuiomata/track.png
+N:
+
+Closer look of coast road.
+
+
+WALK:
+Map:
+<iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://maps.google.co.nz/maps?q=-41.332354,174.91323&amp;num=1&amp;vpsrc=0&amp;hl=en&amp;ie=UTF8&amp;t=m&amp;z=14&amp;ll=-41.331193,174.913673&amp;output=embed"></iframe><br /><small><a href="http://maps.google.co.nz/maps?q=-41.332354,174.91323&amp;num=1&amp;vpsrc=0&amp;hl=en&amp;ie=UTF8&amp;t=m&amp;z=14&amp;ll=-41.331193,174.913673&amp;source=embed" style="color:#0000FF;text-align:left">View Larger Map</a></small>
+
+A:
+http://www.wonderwalkers.co.nz/default,1322,orongorongo-track.sm
+See this link for more info
+

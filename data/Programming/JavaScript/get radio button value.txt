@@ -1,0 +1,92 @@
+N:
+There are several ways to get radio button value,
+if you have more than radio button, and they all have the same name, then
+Javascript treat them as control array, you will have to retrieve the value
+like an array! As the following example, you will see 2 ways to access them,
+both works.
+
+C:
+<html>
+<head>
+<script type="text/javascript">
+function timeMsg()
+{
+	var t=setTimeout("alertMsg()",10000);//10 minutes
+}
+function alertMsg()
+{
+	alert("Times up, test finished");
+	clearTimeout(t);
+}
+
+function getRadioValue1(radioN)
+{
+	for(i=0;i<document.selftest[radioN].length;i++)
+	{
+		if (document.selftest[radioN][i].checked == true)
+			return document.selftest[radioN][i].value;
+	}
+}
+
+function getRadioValue(radioN)
+{
+   var f=document.forms['selftest'];
+	for(i=0;i<f.elements[radioN].length;i++)
+	{
+		if (f.elements[radioN][i].checked == true)
+			return f.elements[radioN][i].value;
+	}
+}
+
+function checkanswer()
+{
+	var x=0;	
+	var x=getRadioValue("vehicle");
+	if (x==0)
+	{
+		alert("Congratulation, you are correct!");
+		clearTimeout(t);
+	}
+	else if (x==null)
+	{
+		alert("Please select a value!");
+	}
+	else
+	{
+		alert("Your input ("+x+") is incorrect!");
+	} 
+	return false;
+}
+</script>
+</head>
+
+<body onload="timeMsg()">
+What is the result of following C code?
+<p>
+#include <stdio.h> 
+int evaluate(char * c) 
+{ 
+    printf("%s\n",c); 
+} 
+int main() 
+{ 
+    int i=0x30; 
+    int *y; 
+    y=&i; 
+    evaluate((char*)y); 
+} 
+</p>
+<form name="selftest" onsubmit="return checkanswer()">
+<input type="radio" name="vehicle" value="30" />30 <br />
+<input type="radio" name="vehicle" value="0" />0  
+<input type="submit" value="Submit my answer"/>
+</form>
+</body>
+</html>
+N:
+If you are interested on how it works, download and test this strategy from the link below.
+
+A:
+/download/selftest.html
+Download this html file and take a C language test!
+
