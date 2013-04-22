@@ -1,0 +1,7 @@
+function name: lowerCaseThenUpperCase
+variable name: lowerCaseThenUpperCase
+class name:	UpperCaseFirstCharacter
+file name:	lowercase_and_function.php
+comment:	//single line comment always
+const:	use single quote HELLO ='value';
+
