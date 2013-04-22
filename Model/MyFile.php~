@@ -1,0 +1,92 @@
+<?php
+
+class MyData
+{
+	private $lines;
+	function  __construct()
+	{
+		$this->lines=array();		
+	}
+			
+	public function getlines()
+	{
+		return $this->lines;
+	}
+	public function addline($l)
+	{
+		$this->lines[]=$l;
+	}
+
+}
+
+class MySection
+{
+	private $name;
+	public $myData;
+	
+	function __construct()
+	{
+		$this->myData=new MyData();
+	}	
+	public function addLine($l)
+	{
+		$this->myData->addLine($l);
+	}
+	
+	public function getData()
+	{
+		return $this->myData->getLines();	
+	}	
+}
+
+class MyFile
+{
+	public $sections;
+	function __construct()
+	{
+		$this->sections=array();	
+	}	
+	
+	private $availSections;
+	function __construct()
+	{
+		$this->availSections = array(
+			mycomment::CSTART =>new mycomment(""),			
+			"A:" =>new link_parser(),
+			"ASM:"=>new asm_file_parser(),
+			"C:"=>new c_file_parser(),
+			"C++:"=>new cplus_file_parser(),
+			"C#:"=>new csharp_file_parser(),
+			"Java:"=>new java_file_parser(),
+			"N:"=>new myfile_parser(),
+			"IMG:"=>new img_parser(),
+			"CMD:"=>new cmd_parser(),
+			"Test:"=>new test_parser()
+			);
+	}
+		
+	public function loadData($filename)
+	{
+		$file = fopen($filename,"r") or exit("Unable open file!");
+		$lines=array();		
+		while(!feof($file))
+  		{
+  			$line=fgets($file);
+			$lines[]=$line;
+		}
+			
+	}
+	
+	private function readSections()
+	{
+		
+	}
+
+	public function getSections()
+	{
+			
+	}
+}
+
+
+?>

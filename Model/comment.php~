@@ -1,0 +1,31 @@
+<?php
+
+	require_once(SupportedSystem.'/comment_reader.php');
+	class MyComment
+	{
+		public $email;
+		public $user;
+		public $time;
+		public $comment;
+		public $ip;
+		public $id;
+	}
+	
+	class MyComments
+	{
+		private $reader;
+		function __construct()
+		{
+			$this->reader=new CommentReader();
+		}
+		public function addComment($v)
+		{
+			$v->ip=$_SERVER['REMOTE_ADDR'];
+			$v->time=date("D, d M Y H:i:s");
+			$this->reader->saveComment($v);
+		}
+		public function getComments($id)
+		{
+		}	
+	}
+?>

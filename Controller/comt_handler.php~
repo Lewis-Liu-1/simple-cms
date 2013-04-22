@@ -1,0 +1,53 @@
+<?php
+	$s=$_SERVER['DOCUMENT_ROOT'];
+
+	require_once($s.'/settings.php');
+	require_once(RootDir.ModelDir.'/setup.php');
+	require_once(RootDir.ViewDir.'/messagebox.php');
+	require_once(RootDir.ModelDir.'/mycomment.php');
+	
+	$s = PWS::factory(SupportedSystem);
+	$menus = $s::singleton();
+
+	$from=$_POST["home"];
+	$cat=$_POST["category"];
+	$id=$_POST["topic"];
+
+	$user=$_POST["username"];
+	$email=$_POST["email"];
+	$comment=$_POST["comment"];
+
+	if ($menus->article_exist($from,$cat,$id)==false)
+	{
+		$f=new messagebox();
+		$f->showmessage("File not exist, can't post your comment!");
+		unset($f);
+		exit();
+	}
+	
+	$file=$menus->get_file_name($from,$cat,$id);
+	
+	$mc=new mycomment(CommentFilePath,$file);
+	if ($mc->is_comment_valid($comment) ==false)
+	{
+		$f = new messagebox();
+		$s = "Please input '/' at top left corner of comment field!";
+		$f -> showmessage($s,$from,$cat,$id);
+		unset($f);
+		exit();
+	}
+
+	$comment=substr($comment,1);
+		
+	$check=$mc->add_comment($from,$cat,$id,$user,$email,$comment);
+	if ($check)
+	{
+		$f = new messagebox();
+		$s = "Comment posted!";
+		$f -> showmessage($s,$from,$cat,$id);
+		unset($f);
+	}	
+	unset($h);
+	unset($menus);
+			
+?>

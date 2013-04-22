@@ -1,0 +1,23 @@
+<?php
+	require_once(RootDir.ModelDir.'/mycomment.php');
+	require_once(RootDir.ViewDir.'/file_viewer.php');
+
+	class CommentViewer
+  	{
+		private $count;
+
+		private function printComment($c)
+		{
+				$c->comment =str_replace("\n","<br/>",$c->comment);
+				echo "<div class=\"cmt_header\">";				
+				echo "<span class='username'>".$c->R($c->user)."</span>&nbsp;";
+				echo "<span class='email'>".$c->email."</span>&nbsp;";
+				echo "<span class='time'>".$c->R($c->time)."</span>&nbsp;";
+				//echo "<span class='shortlink ip'>".$this->ip."</span><br/>\n";
+				echo "</div>\n";
+				echo "<div class='says'>".$c->comment."</div>\n";
+		} 
+  	
+  }
+
+?>

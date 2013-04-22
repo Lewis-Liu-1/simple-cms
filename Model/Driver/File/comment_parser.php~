@@ -1,0 +1,260 @@
+<?php
+	require_once(RootDir.ControllerDir.'/file_parser.php');
+	
+	class CommentFile
+	{
+		const CSTART ="CMT:";	
+		const CSECTION_START ="/";	
+		const CSECTION_END ="/";	
+		const CSECTION_ESC ="\5"; //CHAR 5	
+		const CTIME ="time:";	
+		const CIP ="ip:";	
+		const CUSER ="username:";	
+		const CEMAIL ="email:";	
+		const CCMT ="says:";
+		const CFOR="for:";	
+
+		public function saveComment($c)
+		{
+			//$ip=$_SERVER['REMOTE_ADDR'];
+			$data=array();
+			$data[] =self::CSTART."\n";
+			$data[] =self::CSECTION_START."\n";
+			$data[] =self::CFOR.$c->id;
+			$data[] =self::CCMT.$c->comment."\n";
+			$data[] =self::CTIME$c->time."\n";//.date("D, d M Y H:i:s")."\n";
+			$data[] =self::CUSER.$c->user."\n";
+			$data[] =self::CEMAIL.$c->email."\n";
+			$data[] =self::CIP.$c->ip."\n";
+			$data[] =self::CSECTION_END."\n";
+			$this->saveComment($data,$c->id);
+			$this->backupComment($data,$c->id);
+			
+			return true;
+		}
+		
+		private function saveComment($data,$id)
+		{	
+			//echo "mycomment ".$this->cmt_file_path."<br/>";
+			$file=RootDir.DataDir.$id;
+			$file = fopen($file,"a+") or exit("Unable open file!");
+			foreach($data as $va)
+			{
+				fputs($file,$va);
+			}
+			fclose($file); 
+		}
+		
+		private function backupComment($data,$id)
+		{
+			$file = fopen(CommentFilePath,"a+") or exit("Unable open file!");
+			foreach($data as $va)
+			{
+				fputs($file,$va);
+			}
+			fclose($file); 
+		}
+		
+		
+	}
+
+	class CommentParser extends MyFileParser
+	{
+
+		private $cmtFilePath;
+		private $realFilePath;
+		private $count;
+		private $start;
+
+		private $vars;
+		private $var;
+		private $done;
+				
+		function __construct($c,$r)
+		{
+			$this->cmtFilePath=$c;
+			$this->realFilePath=$r;
+			
+			$this->count=0;
+			$this->vars = array(self::CTIME=> 'time',
+				self::CIP =>'ip' ,
+				self::CUSER =>'user' ,
+				self::CEMAIL =>'email' ,
+				self::CCMT =>'comment' 
+			);
+			$this->done=false;
+		}
+		
+		private function R($s)
+		{
+			$s=trim($s);
+			$s=str_replace(" ","&nbsp;",$s);
+			return $s;
+		}
+		
+		private function print_me()
+		{
+				$this->comment =str_replace("\n","<br/>",$this->comment);
+				echo "<div class=\"cmt_header\">";				
+				echo "<span class='username'>".$this->R($this->user)."</span>&nbsp;";
+				echo "<span class='email'>".$this->email."</span>&nbsp;";
+				echo "<span class='time'>".$this->R($this->time)."</span>&nbsp;";
+				//echo "<span class='shortlink ip'>".$this->ip."</span><br/>\n";
+				echo "</div>\n";
+				echo "<div class='says'>".$this->comment."</div>\n";
+		} 
+		
+		public function get_css_name() 
+		{	
+			//$this->subsection=false;
+			$ret='comment';
+			$this->count++;
+			$this->done=false;
+			if ($this->count % 2 ==0)
+			{
+				$ret='comment comment1';
+			}
+			return $ret;
+		}
+		public function is_section_finished(){return $this->done;}
+
+		public function convert_keyword($s)
+		{
+			$s=$this->get_start($s);
+			$s=$this->get_content($s);
+			return $s;
+		}
+		
+		function get_start($s)
+		{
+			$ret=$s;
+			
+			$pos = strpos($s,self::CSECTION_START);
+			if ($pos!==false)
+			{ 
+				if ($pos==0)
+				{
+					if (strlen($s)>2) return $ret;
+					if ($this->start)
+					{
+						$this ->print_me();
+						$this->start=false;
+						$this->done=true;
+					}
+					else 
+					{
+						$this->start=true;
+					}
+					$this->print = false;
+					$ret="";
+				}
+			}
+			return $ret;
+		}
+	
+		function get_content($s)
+		{
+			$ret=$s;
+			$this->print = true;
+			
+			foreach ($this->vars as $key => $prefix) 
+			{
+				$pos = strpos($s,$key);
+				if ($pos!==false)
+				{ 
+					if ($pos==0)
+					{
+						$m=str_replace($key,"",$s);
+						$this->var =	&$this->$prefix;
+						$this->var = ($m);	
+						$this->print = false;
+						$ret="";
+					}
+					break;
+				}
+			}
+			
+			if ($this->print)
+			{
+				$this->print = false;
+				if (strlen(trim($s))>0)
+			 		$this->var.=($s);	
+			}	
+			
+			return $ret;	
+		}
+		
+		public function add_comment($ho,$cat,$id,$user,$email,$comment)
+		{
+			$ip=$_SERVER['REMOTE_ADDR'];
+	
+			$c  =self::CCMT.$comment."\n";
+			$c .=self::CTIME.date("D, d M Y H:i:s")."\n";
+			$c .=self::CUSER.$user."\n";
+			$c .=self::CEMAIL.$email."\n";
+			$c .=self::CIP."$ip"."\n";
+			
+			$this->save_comment($ho,$cat,$id,$c);
+			$this->save_to_real_file($c);
+			
+			return true;
+		}
+		
+		private function save_comment($ho,$cat,$id,$c)
+		{	
+			//echo "mycomment ".$this->cmt_file_path."<br/>";
+			
+			$file = fopen($this->cmt_file_path,"a+") or exit("Unable open file!");
+			fputs($file,self::CSTART."\n");
+			fputs($file,self::CSECTION_START."\n");
+			fputs($file,self::CFOR."$this->real_file_path\n");
+			fputs($file,"$c");
+			fputs($file,self::CSECTION_END."\n");
+			fclose($file); 
+			
+			return true;
+		}
+		
+		private function save_to_real_file($c)
+		{
+			//echo "mycomment ".$this->real_file_path."<br/>";
+			
+			$file = fopen($this->real_file_path,"a+") or exit("Unable open file!");
+			fputs($file,self::CSTART."\n");
+			fputs($file,self::CSECTION_START."\n");
+			fputs($file,"$c");
+			fputs($file,self::CSECTION_END."\n");
+			fclose($file); 
+		}
+		
+		public function read_comments($count)
+		{
+			
+		}
+		
+		public function read_comment($h,$c,$id)
+		{
+			
+		}
+		
+		private function read_all()
+		{
+			
+		}
+		
+
+		public function is_comment_valid($comment)
+		{
+			$pos = strpos($comment,"/");
+			if ($pos === false)
+			{
+				return false;
+			}
+			else { 
+				if ($pos > 0 ) return false;
+			}
+			return true;			
+		}	
+	}
+
+?>

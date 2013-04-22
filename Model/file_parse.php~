@@ -1,0 +1,110 @@
+<?php
+interface ifile_parser
+{
+	public function convert_keyword($s);
+	public function get_css_name();
+}
+
+class myfile_parser implements ifile_parser
+{
+	public $print;
+	function  __construct()
+	{
+		$this->print = false;
+	}
+	
+	public function get_css_name() {return 'section section1';}
+	
+	public function convert_keyword($s)
+	{
+		$this->print = true;
+		return $s;
+	}	
+}
+
+class c_file_parser extends myfile_parser
+{
+}
+
+class cplus_file_parser extends c_file_parser
+{
+	public function convert_keyword($s)
+	{
+		$s=parent::convert_keyword($s);
+		return $s;
+	}	
+}
+class csharp_file_parser extends c_file_parser
+{
+	public function convert_keyword($s)
+	{
+		$s=parent::convert_keyword($s);
+		return $s;
+	}	
+}
+class java_file_parser extends c_file_parser
+{
+	public function convert_keyword($s)
+	{
+		$s=parent::convert_keyword($s);
+		return $s;
+	}	
+}
+
+class asm_file_parser extends myfile_parser
+{
+	public function get_css_name() {return 'section asm';}
+	public function convert_keyword($s)
+	{
+		$this->print=true;
+		return $s;
+	}	
+}
+
+class cmd_parser extends myfile_parser
+{
+	public function get_css_name() {return 'command';}
+	public function convert_keyword($s)
+	{
+		$this->print=true;
+		return $s;
+	}	
+}
+
+class link_parser implements ifile_parser
+{
+	public $print;
+	private $hyperlink_found;
+	function  __construct()
+	{
+		$this->print=false;
+		$this->hyperlink_found=0;
+	}
+			
+	public function get_css_name() {return 'hyperlink';}
+	public function convert_keyword($s)
+	{
+		$this->print=false;
+		$this->hyperlink_found++;
+		$s=$this->update_link($s);
+		return $s;
+	}	
+
+   function update_link($s)
+   {
+   	$ret=$s;
+   	//echo $s."->".$this->hyperlink_found."<br/>";
+		switch ($this->hyperlink_found)
+		{
+			case 2: 
+				echo "<div class=\"atlink\"<a href=".$s.">";
+				break;
+			case 3:
+				echo "$s</a></div>";
+				$this->hyperlink_found=0;		
+				break;
+		}		
+	   return $ret;
+   }
+}
+?>

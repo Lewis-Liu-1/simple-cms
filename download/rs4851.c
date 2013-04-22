@@ -1,0 +1,252 @@
+	#include <linux/init.h>
+	#include <linux/module.h>
+	
+	//for inb, outb functions 
+	#include <asm/io.h>        
+	#include <linux/serial.h>
+	#include <linux/serialP.h>
+	#include <linux/serial_reg.h>
+	#include <asm/serial.h>
+	#include <linux/types.h>
+	#include <linux/kdev_t.h>
+	#include <linux/fs.h>
+	#include <linux/cdev.h>
+	
+	#define ser_dev 0x3f8
+	
+	//disable interrupts, is missing from serial-reg.h 
+	#define UART_IER_DISABLE    0X00    
+	//disable fifo 
+	#define UART_FCR_DISABLE_FIFO    0X00    
+	#define LCR_ADDR  (UART_LCR_WLEN8 | UART_LCR_PARITY \ 
+	| UART_LCR_SPAR)
+	#define LCR_DATA  (UART_LCR_WLEN8 | UART_LCR_PARITY \
+	| UART_LCR_SPAR | UART_LCR_EPAR)
+	#define UART_FIFO_SETUP (UART_FCR_ENABLE_FIFO | \
+	UART_FCR_CLEAR_RCVR | UART_FCR_CLEAR_XMIT | UART_FCR_TRIGGER_1)
+	
+	#define uint32    __u32
+	#define uint16    __u16
+	#define uint8    __u8
+	#define sint32    __s32
+	#define sint16    __s16
+	#define sint8    __s8
+	#define byte     __u8
+	
+	// Macros 
+	//------------------------
+	#define inportb(port) (uint)(inb(ser_dev+port))
+	#define outportb(port,value) outb(value,ser_dev+port)
+	#define setbit(port,bits) outportb(port,(inportb(port)|bits))
+	#define clrbit(port,bits) outportb(port,inportb(port) & ~bits)
+	
+	#define send_byte(b) outportb(UART_TX,b)
+	#define set_addr_bit() setbit(UART_LCR,LCR_ADDR)
+	#define init_mode_addr() outportb(UART_LCR,LCR_ADDR)
+	#define init_mode_data() outportb(UART_LCR,LCR_DATA)
+	#define is_tx_line_empty() (sint16)(\
+	(inportb(UART_LSR)&UART_LSR_TEMT)==UART_LSR_TEMT)? 1 : 0
+	#define enable_rx_interrupt() setbit(UART_IER,UART_IER_RDI)
+	#define disable_rx_interrupt() clrbit(UART_IER,UART_IER_RDI)
+	#define enable_tx_interrupt() setbit(UART_IER,UART_IER_THRI)
+	#define diable_tx_interrupt() clrbit(UART_IER,UART_IER_THRI)
+	#define enable_rx_handshake() \
+	do {outportb(UART_IER,UART_IER_RDI);\
+	  setbit(UART_MCR,UART_MCR_OUT2);}\
+	  while(0)
+	    #define request_to_send() setbit(UART_MCR,UART_MCR_RTS)
+	    #define clr_request_to_send() clrbit(UART_MCR,UART_MCR_RTS)
+	    #define diable_serial_interrupt() \
+	    do {outportb(UART_IER, 0);\
+	      clr_request_to_send();}\
+	      while(0)
+		
+	struct rs485_dev {
+	    struct semaphore sem;     // mutual exclusion semaphore     
+	    struct cdev my_dev;      // Char device structure        
+	};
+	struct rs485_dev * rs485_device;
+	
+	static int rs485_major;
+	
+	MODULE_AUTHOR("Lewis Liu, yyiu002@hotmail.com");
+	MODULE_LICENSE("Dual BSD/GPL");
+	
+	//
+	// Open and close
+	
+	
+	int rs485_open(struct inode *inode, struct file *filp)
+	{
+	  struct rs485_dev *dev; // device information 
+	  
+	  printk(KERN_ALERT "net9 about to open\n");
+	  
+	  dev = container_of(inode->i_cdev, struct rs485_dev, my_dev);
+	  filp->private_data = dev; // for other methods 
+	  
+	  // now trim to 0 the length of the device if open was write-only 
+	  if ( (filp->f_flags & O_ACCMODE) == O_WRONLY) {
+	    if (down_interruptible(&dev->sem))
+	      return -ERESTARTSYS;
+	    //scull_trim(dev); // ignore errors 
+	      up(&dev->sem);
+	  }
+	  return 0;          // success 
+	}
+	
+	int rs485_release(struct inode *inode, struct file *filp)
+	{
+	  return 0;
+	}
+	
+	ssize_t rs485_read(struct file *filp, char __user *buf, size_t count,
+			    loff_t *f_pos)
+	{
+	  struct rs485_dev *dev = filp->private_data;
+	  char * str= "hello from rs485";
+	  ssize_t retval = 0;
+	  
+	  printk(KERN_ALERT "net9 about to read\n");
+	  
+	  if (down_interruptible(&dev->sem))
+	    return -ERESTARTSYS;
+	  
+	  if (copy_to_user(buf, str, strlen(str))) {
+	    retval = -EFAULT;
+	    goto out;
+	  }
+	  
+	  out:
+	  up(&dev->sem);
+	  return retval;
+	}
+	
+	ssize_t rs485_write(struct file *filp, const char __user *buf, size_t count,
+			    loff_t *f_pos)
+	{
+	  printk(KERN_ALERT "net9 about to write\n");
+	  struct rs485_dev *dev = filp->private_data;
+	  ssize_t retval = -ENOMEM; // value used in "goto out" statements 
+	  return retval;
+	}
+	//
+	// The ioctl() implementation
+	
+	
+	int rs485_ioctl(struct inode *inode, struct file *filp,
+			unsigned int cmd, unsigned long arg)
+	{
+	  return -ENOTTY;
+	}
+	
+	loff_t rs485_llseek(struct file *filp, loff_t off, int whence)
+	{
+	  struct rs485_dev *dev = filp->private_data;
+	  loff_t newpos;
+	  
+	  switch(whence) {
+	    case 0: // SEEK_SET 
+			  newpos =0;// off;
+			  break;
+	    case 1: // SEEK_CUR 
+			  newpos = 0;//filp->f_pos + off;
+			  break;
+	    case 2: // SEEK_END 
+			  newpos =0;// dev->size + off;
+			  break;
+	    default: // can't happen 
+			  return -EINVAL;
+	  }
+	  if (newpos < 0) return -EINVAL;
+	  filp->f_pos = newpos;
+	  return newpos;
+	}
+	
+	struct file_operations rs485_fops = {
+	  .owner =    THIS_MODULE,
+	  .llseek =   rs485_llseek,
+	  .read =     rs485_read,
+	  .write =    rs485_write,
+	  .ioctl =    rs485_ioctl,
+	  .open =     rs485_open,
+	  .release =  rs485_release,
+	};
+	
+	//
+	// Set up the char_dev structure for this device.
+	
+	static void rs485_setup_cdev(struct rs485_dev *dev)
+	{
+	  int err, devno = MKDEV(rs485_major, 0);
+	  
+	  cdev_init(&dev->my_dev, &rs485_fops);
+	  
+	  dev->my_dev.owner = THIS_MODULE;
+	  dev->my_dev.ops = &rs485_fops;
+	  err = cdev_add (&dev->my_dev, devno, 1);
+	  // Fail gracefully if need be 
+	  if (err)
+	    printk(KERN_NOTICE "Error %d adding net9", err);
+	}
+	
+	static void rs485_exit(void)
+	{
+	  int i;
+	  dev_t devno = MKDEV(rs485_major, 0);
+	  
+	  // Get rid of our char dev entries 
+	  if (rs485_device) {
+	    cdev_del(&rs485_device->my_dev);
+	    kfree(rs485_device);
+	  }
+	  
+	  // cleanup_module is never called if registering failed 
+	  unregister_chrdev_region(devno, 1);
+	  printk(KERN_ALERT "net9 removed\n");
+	}
+	
+	static int rs485_init(void)
+	{
+	  int result, i;
+	  int err;
+	  
+	  dev_t devno = MKDEV(0, 0);
+	  
+	  //
+	  // Register your major, and accept a dynamic number.
+	  
+	  if (rs485_major)
+	    result = register_chrdev_region(devno, 1, DEVICE_NAME);
+	  else {
+	    result = alloc_chrdev_region(&devno, 0, 1, DEVICE_NAME);
+	    rs485_major = MAJOR(devno);//let kernel allocate a major for us
+	    printk(KERN_ALERT "Our major %d\n",rs485_major);
+	    
+	  }
+	  if (result < 0)
+	    return result;
+	  
+	  //
+	    // allocate the device
+	    
+	    rs485_device = kmalloc(sizeof(struct rs485_dev), GFP_KERNEL);
+	    if (!rs485_device) {
+	      result = -ENOMEM;
+	      goto fail;  // Make this more graceful 
+	    }
+	    memset(rs485_device, 0, sizeof(struct rs485_dev));
+	    
+	    init_MUTEX(&(rs485_device->sem));
+	    rs485_setup_cdev(rs485_device);
+	    
+	    printk(KERN_ALERT "net9 registered\n");
+	    return 0;
+	    
+	    fail:
+	    rs485_exit();
+	    return result;
+	}
+	
+	module_init(rs485_init);
+	module_exit(rs485_exit);

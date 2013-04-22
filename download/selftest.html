@@ -1,0 +1,161 @@
+<html>
+<head>
+
+<style type="text/css" id="vbulletin_css">
+/**
+* vBulletin 3.7.3 CSS
+* Style: 'Default3.7.3pl1'; Style ID: 8
+*/
+#main
+{
+	background: #c1c1c1;
+	color: #000;
+	padding: 10px;
+	border: 2px outset;
+	margin: 10px auto;
+	text-align: left;
+	width: 500px;	
+	font-family: arial,times new roman,tahoma
+}
+#success
+{
+	color:#f66;
+	font-weight: bold;
+}
+#answer
+{
+	color:#266;
+}
+/* ***** don't change the following ***** */
+form { display: inline; }
+label { cursor: default; }
+</style>
+
+<script type="text/javascript">
+var answer=false;
+var timePassed=10;
+var triedTimes=1;
+
+function timeMsg()
+{
+	//var t=setTimeout("alertMsg()",10000);//10 minutes
+	var t=setInterval("alertMsg()",1000);
+}
+function alertMsg()
+{
+	timePassed-=1;
+	if (answer==false)
+	{
+		if (timePassed>0) 
+		{
+			if (timePassed<5)
+				print_result(timePassed+"s left");
+		}
+		else 
+		{	
+			triedTimes++;
+			
+			timePassed=triedTimes*10;
+			if (triedTimes>2)
+			{
+				print_result("Times up, you have to study more!");
+				clearInterval(t);
+			}
+			else
+			{
+				print_result("Times up, you might need time thinking!");
+			}
+		}
+		//clearInterval(t);
+	}
+	//clearTimeout(t);
+}
+
+function getRadioValue1(radioN)
+{
+	for(i=0;i<document.selftest[radioN].length;i++)
+	{
+		if (document.selftest[radioN][i].checked == true)
+			return document.selftest[radioN][i].value;
+	}
+}
+
+function getRadioValue(radioN)
+{
+   var f=document.forms['selftest'];
+	for(i=0;i<f.elements[radioN].length;i++)
+	{
+		if (f.elements[radioN][i].checked == true)
+			return f.elements[radioN][i].value;
+	}
+}
+
+function checkanswer()
+{
+	var x=0;	
+	var x=getRadioValue("vehicle");
+	if (x==0)
+	{
+		answer=true;
+		print_result("Congratulation, you are correct!");
+	}
+	else if (x==null)
+	{
+		answer=false;
+		print_result("Please select a value!");
+	}
+	else
+	{
+		answer=false;
+		print_result("Your input "+x+" is incorrect!");
+	} 
+	return false;
+}
+
+function print_result(s)
+{
+	var ret=document.getElementById("result");
+	document.getElementById("result").innerHTML=s;
+	document.body.bgColor="lavender";
+	//ret.firstChild.data=s;
+}
+</script>
+</head>
+
+<body onload="timeMsg()"><center>
+<div id='main'>
+What is the result of following C code?
+<p>
+#include &lt;stdio.h&gt;<br/>
+<br/>
+int evaluate(char * c)<br/>
+{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;printf("%s\n",c);<br/>
+}<br/>
+<br/>
+int main()<br/>
+{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;int i=0x30;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;int *y;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;y=&i;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;evaluate((char*)y);<br/>
+}<br/>
+</p>
+
+<p id="answer">
+Your answer:<br/>
+<form name="selftest" onsubmit="return checkanswer()">
+<input type="radio" name="vehicle" value="30" />30 <br />
+<input type="radio" name="vehicle" value="0" />0 <br/>
+<input type="button" onclick="checkanswer()" value="Submit my answer"/>
+</form>
+</p>
+
+<p id="result">Your result goes here</p>
+<p />
+<p id="time"></p>
+</div>
+</center>
+
+</body>
+</html>

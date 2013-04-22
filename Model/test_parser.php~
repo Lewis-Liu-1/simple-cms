@@ -1,0 +1,200 @@
+<?php
+	require_once(RootDir.ControllerDir.'/file_parse.php');
+	
+	class test_parser extends myfile_parser
+	{
+		const CSECTION_START ="{";	
+		const CSECTION_END ="}";	
+
+		private $filepath;
+
+		private $Items;
+		private $Variables;
+		private $Expected;
+		private $StepStart;
+		private $StepEnd;
+		private $Var;
+		
+		private $start;				
+		private $count;
+		private $done;
+
+		function __construct($s="")
+		{
+			$this->Items=array('Product Group','Test Type','Software','Classification',
+					'Standard','Aim / Purpose of Test','Set-up Instructions/Equipment Required',
+					'Test Procedure','Exp result');
+			$this->StepStart=count($this->Items);
+					
+			for ( $counter = 1; $counter <= 100; $counter++) {
+				$this->Items[]="Step ".$counter;
+			}
+
+			$this->Variables=array_keys($this->Items);
+			//var_dump($this->Variables);
+			$this->done=false;
+		}
+		
+		private function R($s)
+		{
+			$s=trim($s);
+			//$s=str_replace(" ","&nbsp;",$s);
+			return $s;
+		}
+		
+		
+		private function print_me()
+		{
+			echo "<div class='".$this->get_css_name()."'>";
+			echo "<table class='customers'>\n";
+			echo "<tr>";
+  			echo "<th>Information</th>";
+  			echo "<th></th>";
+			echo "</tr>";
+			for($i=0;$i<$this->StepStart-1;$i++)
+			{
+				echo "<tr>";
+				echo "<td>";				
+				echo $this->Items[$i];
+				echo "</td>\n";
+				echo "<td class=\"says\">";				
+				echo trim($this->Variables[$i]);
+				echo "</td>\n";
+				echo "</tr>";
+			} 
+			echo "</table>\n";
+			echo "</div>";
+			
+			
+			echo "<table class='customers'>\n";
+			echo "<tr>";
+  			echo "<th>Steps</th>";
+  			echo "<th></th>";
+			echo "</tr>";
+			for($i=0;$i<count($this->Expected);$i++)
+			{
+				$j=$i+$this->StepStart;
+				$class='';				
+				if ($i %2==0 ) $class='alt';		
+				echo "<tr class=\"$class\">";
+				//step test
+					echo "<td>";
+						echo $this->Items[$j];
+					echo "</td>";
+					echo "<td>";
+						echo trim($this->Variables[$j]);
+					echo "</td>";
+				echo "</tr><tr class=\"$class\">";
+					echo "<td>";
+						echo "Expected";
+					echo "</td>";
+					echo "<td>";
+						echo trim($this->Expected[$i]);
+					echo "</td>";
+				echo "</tr>";
+			}
+			echo "</table>\n";
+		} 
+		
+		public function get_css_name() 
+		{	
+			//$this->subsection=false;
+			$ret='test';
+			$this->count++;
+			$this->done=false;
+			if ($this->count % 2 ==0)
+			{
+				$ret='test test1';
+			}
+			return $ret;
+		}
+		
+		public function is_section_finished(){return $this->done;}
+		
+		public function convert_keyword($s)
+		{
+			$this->print=true;
+			$s=$this->get_start($s);
+			$s=$this->get_content($s);
+			return $s;
+		}
+		
+		function find_pat($v)
+		{
+			$pos = strpos($s,$v);
+			if ($pos!==false)
+			{ 
+				if ($pos==0)
+					return true;
+			}
+			return false;		
+		}
+
+		function get_start($s)
+		{
+			$ret=$s;
+			$this->print = true;
+			
+			$pos1 = $this->find_pat($s,self::CSECTION_START);
+			$pos2 = $this->find_pat($s,self::CSECTION_END);
+			if ($pos2)
+			{
+				if ($this->start)
+				{
+					$this ->print_me();
+					$this->start=false;
+					$this->done=true;
+					$this->print = false;
+					$ret="";
+				}
+			}
+			
+			if ($pos1)
+			{ 
+				$this->Expected=array();
+				$this->start=true;
+				$this->print = false;
+				$ret="";
+			}
+			
+			return $ret;
+		}
+	
+		function get_content($s)
+		{
+			$ret=$s;
+			$this->print = true;
+			
+			for($i=0;$i<count($this->Items);$i++) 
+			{
+				$key=$this->Items[$i];
+				$pos = strpos($s,$key.":");
+				if ($pos!==false)
+				{ 
+					if ($pos==0)
+					{
+						$m=str_replace($key.":","",$s);
+						$this->Var =	&$this->Variables[$i];
+						$this->Var =trim($m);
+						if (strcmp($key,"Exp result")==0)
+						{
+							$this->Expected[]=$this->Var;
+						}	
+						$this->print = false;
+						$ret="";
+					}
+					break;
+				}
+			}
+			
+			if ($this->print)
+			{
+				$this->print = false;
+				if (strlen(trim($s))>0)
+			 		$this->var.=($s);	
+			}	
+			return $ret;	
+		}
+		
+	}
+?>

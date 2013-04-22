@@ -1,0 +1,1 @@
+cmd_/var/www/download/rs485.ko := ld -r -m elf_i386 -T /usr/src/linux-headers-2.6.35-30-generic-pae/scripts/module-common.lds --build-id -o /var/www/download/rs485.ko /var/www/download/rs485.o /var/www/download/rs485.mod.o

@@ -1,0 +1,16 @@
+<?php
+	class TestSectionNames
+	{
+		const CPRODUCT='Product Group:';
+		const TYPE='Test Type:';
+		const CATE='Software:';
+		const CLASS='Classification:';
+		const STANDARD='Standard:';
+		const AIM='Aim / Purpose of Test:';
+		const REQUIRED='Set-up Instructions/Equipment Required:';
+		const PROC='Test Procedure:';
+		const EXPECTED='Exp result:';
+		const STEPS='Step ';
+	}
+
+?>

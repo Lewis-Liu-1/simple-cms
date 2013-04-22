@@ -1,0 +1,75 @@
+/* ######### CSS for top level tabs ######### */
+
+#menu
+{
+	top:0px;	
+}
+
+#cur_date
+{
+	color:#666;
+	width:300px;
+}
+
+#menu ul{
+overflow: hidden;
+width: auto;
+margin-top: 0px;
+padding: 0;
+list-style-type: none;
+}
+
+#menu li{
+float: left;
+	-moz-border-radius: 5px 5px 5px 5px;
+	-webkit-border-radius: 5px 5px 5px 5px;
+	border: 2px solid #B1D7E7;
+/*border:solid 1px #c1c1c1;*/
+/*margin-left: 2px;*/
+}
+
+#menu a{
+display: block;
+/*background: #E8E8E8*/;
+background: #FFF;
+color: black;
+margin-right: 1px;
+text-decoration: none;
+font: bold 13px Arial;
+padding: 5px 15px 5px 15px;
+}
+
+#menu a:hover, #menu a.selected{
+background: black;
+color: white;
+}
+
+/* ######### CSS for sub menu container below ######### */
+
+.tabsmenuclass{
+clear: left;
+background:url(/View/Theme/red/images/Pertlogo.gif) no-repeat #fff;
+/*background:url(/View/Theme/red/images/logo2.jpg) no-repeat #E8E8E8 0 0px;*/
+
+height: 50px;
+padding-left: 280px;
+padding-bottom: 5px;
+}
+
+.tabsmenuclass div
+{
+padding-left: 480px;
+min-height:20px;
+_height:20px;
+}
+
+.tabsmenuclass ul{
+margin: 0;
+padding-top: 0px;
+list-style-type: none;
+}
+
+.tabsmenuclass li{
+float: left;
+margin-right: 1em;
+}

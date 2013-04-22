@@ -1,0 +1,22 @@
+<?php
+
+class CSection extends MySection {}
+class CMDSection extends MySection{}
+class LINKSection extends MySection
+{
+	var $link;
+	var $desc;
+	public function recreate()
+	{
+		$l=$this->getData();
+		if (count($l)>=2)
+		{
+			$this->link=$l[0];
+			$this->link=$l[1];
+		}	
+	}
+}
+
+class IMGSection extends LINKSection{}
+
+?>

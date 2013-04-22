@@ -1,0 +1,6 @@
+<div id="recent_articles">
+&nbsp;&nbsp;&nbsp;&nbsp;<?php echo DataType.'s';?><br/>
+<?php
+
+?>
+</div>

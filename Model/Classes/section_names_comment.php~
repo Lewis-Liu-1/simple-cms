@@ -1,0 +1,15 @@
+<?php
+	class CommentSectionNames
+	{
+		const CSTART ="CMT:";	
+		const CSECTION_START ="/";	
+		const CSECTION_END ="/";	
+		const CSECTION_ESC ="\5"; //CHAR 5	
+		const CTIME ="time:";	
+		const CIP ="ip:";	
+		const CUSER ="username:";	
+		const CEMAIL ="email:";	
+		const CCMT ="says:";
+		const CFOR="for:";	
+	}
+?>
