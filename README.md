@@ -40,4 +40,4 @@ N:
 Above is a simple C file.
 
 When it is displayed on Web, it will look like following web site:
-freeasm.42web.io
+http://freeasm.42web.io
